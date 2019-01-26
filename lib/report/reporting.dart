@@ -21,5 +21,3 @@ class ReportError extends StatelessWidget {
     );
   }
 }
-
-

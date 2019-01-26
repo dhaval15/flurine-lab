@@ -127,14 +127,15 @@ class LivePreview extends StatelessWidget {
         scale: 0.5,
         child: Center(
           child: StreamBuilder<Flexine>(
-            stream: EditorProvider.of(context)().flexine,
-            builder: (BuildContext context, AsyncSnapshot<Flexine> snapshot) {
-               if (snapshot.hasData)
-                 return snapshot.data.toFlexible();
-               else
-                 return ReportError(error: 'UI01',);
-            }
-          ),
+              stream: EditorProvider.of(context)().flexine,
+              builder: (BuildContext context, AsyncSnapshot<Flexine> snapshot) {
+                if (snapshot.hasData)
+                  return snapshot.data.toFlexible();
+                else
+                  return ReportError(
+                    error: 'UI01',
+                  );
+              }),
         ),
       ),
     );
