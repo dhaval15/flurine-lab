@@ -7,6 +7,7 @@ import 'package:flurine_launcher/flexine/select/extra.dart';
 import 'package:flurine_launcher/flexine/select/num.dart';
 import 'package:flurine_launcher/flexine/select/option.dart';
 import 'package:flurine_launcher/flexine/select/string.dart';
+import 'package:flurine_launcher/report/reporting.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -26,17 +27,29 @@ class EditorBloc {
   Sink<int> get strokeWidth => _strokeWidthController.sink;
   final _strokeWidthController = StreamController<int>();
 
+  Sink<int> get letterSpacing => _letterSpacingController.sink;
+  final _letterSpacingController = StreamController<int>();
+
+  Sink<int> get wordSpacing => _wordSpacingController.sink;
+  final _wordSpacingController = StreamController<int>();
+
+  Sink<int> get decorationStyle => _decorationStyleController.sink;
+  final _decorationStyleController = StreamController<int>();
+
   Stream<Flexine> get flexine => _flexineSubject.stream;
   final _flexineSubject = BehaviorSubject<Flexine>();
 
   EditorBloc() {
-    Observable.combineLatest5(
+    Observable.combineLatest8(
         _textController.stream,
         _fontSizeController.stream,
         _fontWeightController.stream,
         _styleController.stream,
         _strokeWidthController.stream,
-        (text, fontSize, fontWeight, style, strokeWidth) {
+        _letterSpacingController.stream,
+        _wordSpacingController.stream,
+        _decorationStyleController.stream, (text, fontSize, fontWeight, style,
+            strokeWidth, letterSpacing, wordSpacing, decorationStyle) {
       return FText(
         text: text,
         fontWeight: fontWeight.toInt(),
@@ -45,7 +58,10 @@ class EditorBloc {
           strokeWidth: strokeWidth.toDouble(),
           style: style,
         ),
+        letterSpacing: letterSpacing,
         fontSize: fontSize.toDouble(),
+        wordSpacing: wordSpacing,
+        decorationStyle: decorationStyle,
       );
     }).listen(_update);
   }
@@ -113,20 +129,11 @@ class LivePreview extends StatelessWidget {
           child: StreamBuilder<Flexine>(
             stream: EditorProvider.of(context)().flexine,
             builder: (BuildContext context, AsyncSnapshot<Flexine> snapshot) {
-              final flexine = snapshot.hasData
-                  ? snapshot.data
-                  : FText(
-                      text: 'Hello',
-                      paint: FPaint(
-                        color: Colors.white.value,
-                        strokeWidth: 1,
-                        style: PaintingStyle.fill.index,
-                      ),
-                      fontSize: 40,
-                      fontWeight: 3,
-                    );
-              return flexine.toFlexible();
-            },
+               if (snapshot.hasData)
+                 return snapshot.data.toFlexible();
+               else
+                 return ReportError(error: 'UI01',);
+            }
           ),
         ),
       ),
@@ -144,7 +151,7 @@ class SelectText extends StatelessWidget {
           title: 'Text',
           child: SelectString(
             sink: bloc.text,
-            initial: 'Type Here',
+            initial: 'Flurine',
           ),
         ),
         PairWidget(
@@ -152,7 +159,7 @@ class SelectText extends StatelessWidget {
           child: SelectNumber(
             bound: Bound(1, null),
             sink: bloc.fontSize,
-            initial: 14,
+            initial: 48,
             stepper: 4,
           ),
         ),
@@ -173,12 +180,37 @@ class SelectText extends StatelessWidget {
           ),
         ),
         PairWidget(
-          title: 'StrokeWidth',
+          title: 'Stroke Width',
           child: SelectNumber(
             stepper: 1,
             bound: Bound(1, null),
             sink: bloc.strokeWidth,
             initial: 1,
+          ),
+        ),
+        PairWidget(
+          title: 'Letter Spacing',
+          child: SelectNumber(
+            stepper: 1,
+            bound: Bound(null, null),
+            sink: bloc.letterSpacing,
+            initial: 1,
+          ),
+        ),
+        PairWidget(
+          title: 'Word Spacing',
+          child: SelectNumber(
+            stepper: 1,
+            bound: Bound(null, null),
+            sink: bloc.wordSpacing,
+            initial: 1,
+          ),
+        ),
+        PairWidget(
+          title: 'Decoration Style',
+          child: SelectOption(
+            sink: bloc.style,
+            titles: ['solid', 'double', 'dotted', 'dashed', 'wavy'],
           ),
         ),
       ],
