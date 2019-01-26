@@ -7,8 +7,10 @@ import 'package:rxdart/rxdart.dart';
 
 class NumBloc {
   int _value;
+
   final Sink<int> consumer;
   final int stepper;
+  final Bound bound;
 
   Sink<String> get sink => _controller.sink;
   final _controller = StreamController<String>();
@@ -27,6 +29,7 @@ class NumBloc {
   }
 
   void _add() {
+    _value = bound.newValue(_value);
     _valueSubject.add(_value);
     consumer.add(_value);
   }
@@ -36,7 +39,7 @@ class NumBloc {
     _add();
   }
 
-  NumBloc({int initial, this.consumer, this.stepper}) {
+  NumBloc({int initial, this.consumer, this.stepper, this.bound}) {
     _value = initial;
     _controller.stream.listen(_update);
     if (initial != null) _valueSubject.sink.add(initial);
@@ -70,7 +73,8 @@ class SelectNumber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var bloc = NumBloc(initial: initial, consumer: sink, stepper: stepper);
+    var bloc = NumBloc(
+        initial: initial, consumer: sink, stepper: stepper, bound: bound);
     return NumProvider(
       bloc: bloc,
       child: Row(
@@ -117,6 +121,14 @@ class Bound {
   final int upper;
 
   Bound(this.lower, this.upper);
+
+  int newValue(int oldValue) {
+    int value = oldValue;
+    if (upper != null && value > upper)
+      value = upper;
+    else if (lower != null && value < lower) value = lower;
+    return value;
+  }
 }
 
 class BoundFormatter extends TextInputFormatter {
@@ -128,11 +140,8 @@ class BoundFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     int value = int.parse(newValue.text.isEmpty ? "0" : newValue.text);
-    if (bound.upper != null && value > bound.upper)
-      value = bound.upper;
-    else if (bound.lower != null && value < bound.lower) value = bound.lower;
     return newValue.copyWith(
-      text: value.toString(),
+      text: bound.newValue(value).toString(),
     );
   }
 }
