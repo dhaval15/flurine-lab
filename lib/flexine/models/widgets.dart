@@ -39,7 +39,6 @@ class FText extends Flexine {
   final int fontWeight;
   final int letterSpacing;
   final int wordSpacing;
-  final int decorationStyle;
 
   FText({
     this.fontWeight,
@@ -48,7 +47,6 @@ class FText extends Flexine {
     this.fontSize,
     this.letterSpacing,
     this.wordSpacing,
-    this.decorationStyle,
   }) : super('text');
 
   factory FText.fromJson(Map<String, dynamic> data) => FText(
@@ -58,7 +56,6 @@ class FText extends Flexine {
         fontWeight: data['fontWeight'],
         letterSpacing: data['letterSpacing'],
         wordSpacing: data['wordSpacing'],
-        decorationStyle: data['decorationStyle'],
       );
 
   @override
@@ -70,7 +67,6 @@ class FText extends Flexine {
           fontWeight: FontWeight.values[fontWeight],
           letterSpacing: letterSpacing.toDouble(),
           wordSpacing: wordSpacing.toDouble(),
-          decorationStyle: TextDecorationStyle.values[decorationStyle],
         ),
       );
 
@@ -83,7 +79,6 @@ class FText extends Flexine {
         'foreground': paint,
         'letterSpacing': letterSpacing,
         'wordSpacing': wordSpacing,
-        'decorationStyle': decorationStyle,
       };
 }
 

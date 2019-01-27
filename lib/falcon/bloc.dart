@@ -33,23 +33,19 @@ class EditorBloc {
   Sink<int> get wordSpacing => _wordSpacingController.sink;
   final _wordSpacingController = StreamController<int>();
 
-  Sink<int> get decorationStyle => _decorationStyleController.sink;
-  final _decorationStyleController = StreamController<int>();
-
   Stream<Flexine> get flexine => _flexineSubject.stream;
   final _flexineSubject = BehaviorSubject<Flexine>();
 
   EditorBloc() {
-    Observable.combineLatest8(
+    Observable.combineLatest7(
         _textController.stream,
         _fontSizeController.stream,
         _fontWeightController.stream,
         _styleController.stream,
         _strokeWidthController.stream,
         _letterSpacingController.stream,
-        _wordSpacingController.stream,
-        _decorationStyleController.stream, (text, fontSize, fontWeight, style,
-            strokeWidth, letterSpacing, wordSpacing, decorationStyle) {
+        _wordSpacingController.stream, (text, fontSize, fontWeight, style,
+            strokeWidth, letterSpacing, wordSpacing) {
       return FText(
         text: text,
         fontWeight: fontWeight.toInt(),
@@ -61,7 +57,6 @@ class EditorBloc {
         letterSpacing: letterSpacing,
         fontSize: fontSize.toDouble(),
         wordSpacing: wordSpacing,
-        decorationStyle: decorationStyle,
       );
     }).listen(_update);
   }
@@ -205,13 +200,6 @@ class SelectText extends StatelessWidget {
             bound: Bound(null, null),
             sink: bloc.wordSpacing,
             initial: 1,
-          ),
-        ),
-        PairWidget(
-          title: 'Decoration Style',
-          child: SelectOption(
-            sink: bloc.style,
-            titles: ['solid', 'double', 'dotted', 'dashed', 'wavy'],
           ),
         ),
       ],
